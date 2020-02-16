@@ -1,4 +1,9 @@
-from bokeh.plotting import figure, output_file, show, ColumnDataSource
+from bokeh.plotting import figure, output_file, show,save, ColumnDataSource
+from bokeh.models.tools import HoverTool
+from bokeh.transform import factor_cmap
+from bokeh.palettes import Blues8
+from bokeh.embed import components
+from bokeh.resources import JS_RESOURCES
 import pandas
 
 #Read in CSV
@@ -29,9 +34,39 @@ p.hbar(
     right='Horsepower',
     left=0,
     height =0.4,
-    color='orange',
-    fill_alpha=0.5,
-    source=source
+    fill_color=factor_cmap(
+        'Car',
+        palette=Blues8,
+        factors=car_list
+        ),
+    fill_alpha=1,
+    source=source,
+    legend ='Car'
     )
-# Show results
+
+# Add Legend
+p.legend.orientation='vertical'
+p.legend.location='top_right'
+p.legend.label_text_font_size='10px'
+
+# Add Tooltips
+hover = HoverTool()
+hover.tooltips = """
+    <div>
+        <h3>@Car</h3>
+        <div><strong>Price: </strong>@Horsepower</div>
+        <div><img src="@Image" alt="" width="200"/></div>
+    </div>
+"""
+
+p.add_tools(hover)
+# show results
 show(p)
+
+# save results
+save(p)
+
+# Plrint out div and script
+script, div = components(p)
+print(div)
+print(script)
